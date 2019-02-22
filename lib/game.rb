@@ -5,49 +5,38 @@ require_relative 'constants'
 class Game
 	attr_accessor :board, :turn, :player1, :player2
 	def initialize
-		@board = Board.new
+		@board = nil
 		@turn = 0
 		@player1 = nil
 		@player2 = nil
 	end
 
-	def add_player(symbol)
-		player_name = gets.chomp
-		return Player.new(player_name, symbol)
-	end
-
-	def move(player)
-		symbol = player.symbol
-		puts "#{player.name} move (print a number from 0 to 8) \n"
-		move_index = gets.chomp
-		if board.matrix[move_index.to_i] == nil && move_index.to_i >= 0 && move_index.to_i < 9 && POSSIBLE_MOVES.any? {|element| element == move_index} 
-			board.change_matrix(player.symbol, move_index.to_i)
+	def get_symbol
+		player_symbol = gets.chomp
+		if player_symbol.length != 1
+			puts "Your symbol should be a single character!"
+			get_symbol
+		elsif @player1 && @player1.symbol == player_symbol
+			puts "This symbol is already taken!"
+			get_symbol
 		else
-			puts 'Please make a valid move'
-			move(player)
+			return player_symbol
 		end
-	end	
-
-	def board_full?
-		!board.matrix.any? {|val| val == nil} 
 	end
 
-	def player_won?
-		WIN_CONDITIONS.each do |val|
-			if  @board.matrix[val[0]] == @board.matrix[val[1]] && 
-			 	@board.matrix[val[1]] == @board.matrix[val[2]] &&
-			 	@board.matrix[val[0]] != nil && @board.matrix[val[1]] != nil && @board.matrix[val[2]] != nil
-			 	return true
-			end
-		end
-		return false
+	def get_player
+		puts "Your name:"
+		p_name = gets.chomp
+		puts "Your symbol, #{p_name}:"
+		p_symbol = get_symbol
+		return player = Player.new(p_name, p_symbol)
 	end
 
-	def change_names
-			puts "player1 name:"
-			@player1 = add_player('X')
-			puts "player2 name:"
-			@player2 = add_player('O')
+	def add_players
+			puts 'Adding first player'
+			@player1 = get_player
+			puts 'Adding second player'
+			@player2 = get_player
 	end
 
 	def continue
@@ -56,31 +45,46 @@ class Game
 			call_menu
 	end
 
-	def call_menu
-		system "clear"
-		print MENU
-		puts "Your choice:"
-	    choice = gets.chomp.upcase
-	    case
-		when choice == "N"
-			game_start
-		when choice == "C"
-			change_names
-			continue
-		when choice == "S"
-			score
-			continue
-		when choice == "Q"
-		     return	
-		end	
+	def valid_board_size?(size)
+		return true if size <= 9 && size >= 2
+		false
 	end
 
-	def game_start
-		puts "Starting the game"
-		if @player1 == nil && @player2 == nil
-			change_names
+	def add_board
+		puts "Choose the size of the board (enter a number between 2 and 9)"
+		size = gets.to_i
+		if valid_board_size?(size)
+			@board = Board.new(size)
+		else
+			add_board
 		end
-		play
+	end
+
+	def call_menu
+		system "clear"
+		print "N: start new game\nC: Change players\nB: Change board size\nS: Score\nQ: Quit\n"
+		puts "Your choice:"
+	    choice = gets.chomp.upcase
+	    case choice
+		when "N"
+			puts "Starting the game"
+			add_players if @player1 == nil && @player2 == nil
+			add_board if @board == nil
+			play
+		when "C"
+			add_players
+			continue
+		when "B"
+			add_board
+			continue
+		when "S"
+			score
+			continue
+		when "Q"
+		     return
+		else
+			call_menu	
+		end	
 	end
 
 	def increment_turn
@@ -92,7 +96,7 @@ class Game
 		answer = gets.chomp.upcase
 			if answer == "Y"
 				@turn = 0
-				@board = Board.new
+				@board.clear
 				call_menu
 			elsif answer == "N"
 				puts 'Bye'
@@ -110,26 +114,26 @@ class Game
 		end
 	end
 
+	def win(player)
+		puts "#{player.name} won"
+		player.score+=1
+	end
+
 	def play
-		until player_won? || board_full?
+		current_player = @player1
+		until @board.player_won?(@player1.symbol) || @board.player_won?(@player2.symbol) || @board.full?
 			system "clear"
 			board.print_board
 			increment_turn
-			current_player = turn%2!=0? @player1: @player2
-			move(current_player)
+			current_player = turn.odd? ? @player1: @player2
+			@board.move(current_player)
 		end
-		if player_won?
-			puts turn%2!=0? "#{@player1.name} won" : "#{@player2.name} won"
-			if turn%2!=0
-				puts "#{@player1.name} won"
-				@player1.score+=1
-			else
-				puts "#{@player2.name} won"
-				@player2.score+=1
-			end
+		if @board.player_won?(current_player.symbol)
+				win(current_player)
 		else
 			puts "It's a draw"
 		end
+		board.print_board
 		score
 		play_again?
 	end
