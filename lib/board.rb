@@ -40,6 +40,10 @@ class Board
 		false
 	end
 
+	def wanna_quit?(input)
+		return true if input.upcase == 'Q'
+	end
+
 	def print_board
 		counter = 0
 		print "  "
@@ -47,7 +51,7 @@ class Board
 		print "\n"
 		@matrix.each_slice(@dim) do |val|
 			print "#{counter}|"
-			val.each {|element| print element == nil ? "   " : " #{element} "} 
+			val.each {|element| print element == nil ? " - " : " #{element} "} 
 			print "|\n"
 			counter+=1
 		end
@@ -56,24 +60,6 @@ class Board
 	def change_matrix(symbol, move_index)
 		@matrix[move_index] = symbol
 	end
-
-	def move(player)
-		symbol = player.symbol
-		puts "#{player.name} move (print a number from 0 to #{@dim-1} and a letter from A to #{ALPHABET[@dim-1]}) \n"
-		player_input = gets.gsub(/\s+/, "").split('')
-		if valid_input?(player_input)
-			move_index = @dim*(player_input[0].to_i)+ALPHABET.index(player_input[1].upcase)
-			if empty_space?(move_index)
-				change_matrix(player.symbol, move_index)
-			else
-				puts 'Invalid move'
-				move(player)
-			end
-		else
-			puts 'Please make a valid move0'
-			move(player)
-		end
-	end	
 
 	def clear
 		@matrix = Array.new(dim**2)

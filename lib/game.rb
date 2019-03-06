@@ -9,6 +9,7 @@ class Game
 		@turn = 0
 		@player1 = nil
 		@player2 = nil
+		@wanna_quit = false
 	end
 
 	def get_symbol
@@ -59,17 +60,31 @@ class Game
 			add_board
 		end
 	end
+	
+	def print_menu
+		puts '________________________ Menu ____________________________'
+		print "\n"
+		puts '                      G: Start the game                   '
+		puts '                      C: Change players                   '
+		puts '                      B: Change board size                '
+		puts '                      S: Score                            '
+		puts '                      Q: Quit                             '
+		puts '__________________________________________________________'
+        print "\n"
+	end
 
 	def call_menu
 		system "clear"
-		print "N: start new game\nC: Change players\nB: Change board size\nS: Score\nQ: Quit\n"
+		#print "N: start new game\nC: Change players\nB: Change board size\nS: Score\nQ: Quit\n"
+		print_menu
 		puts "Your choice:"
 	    choice = gets.chomp.upcase
 	    case choice
-		when "N"
+		when "G"
 			puts "Starting the game"
 			add_players if @player1 == nil && @player2 == nil
 			add_board if @board == nil
+			@wanna_quit = false
 			play
 		when "C"
 			add_players
@@ -119,14 +134,35 @@ class Game
 		player.score+=1
 	end
 
+	def move(player)
+		symbol = player.symbol
+		puts "#{player.name} move (print a number from 0 to #{board.dim-1} and a letter from A to #{ALPHABET[board.dim-1]}) or 'Q' to quit\n"
+		player_input = gets.gsub(/\s+/, "").split('')
+		if board.valid_input?(player_input)
+			move_index = board.dim*(player_input[0].to_i)+ALPHABET.index(player_input[1].upcase)
+			if board.empty_space?(move_index)
+				board.change_matrix(player.symbol, move_index)
+			else
+				puts 'Invalid move'
+				move(player)
+			end
+		elsif player_input.length == 1 && player_input[0].upcase == 'Q'
+			@wanna_quit = true
+			return
+		else
+			puts 'Please make a valid move'
+			move(player)
+		end
+	end	
+
 	def play
 		current_player = @player1
-		until @board.player_won?(@player1.symbol) || @board.player_won?(@player2.symbol) || @board.full?
+		until @board.player_won?(@player1.symbol) || @board.player_won?(@player2.symbol) || @board.full? || @wanna_quit
 			system "clear"
 			board.print_board
 			increment_turn
 			current_player = turn.odd? ? @player1: @player2
-			@board.move(current_player)
+			move(current_player)
 		end
 		if @board.player_won?(current_player.symbol)
 				win(current_player)
@@ -137,4 +173,5 @@ class Game
 		score
 		play_again?
 	end
+
 end
