@@ -148,7 +148,6 @@ class Game
 			end
 		elsif player_input.length == 1 && player_input[0].upcase == 'Q'
 			@wanna_quit = true
-			return
 		else
 			puts 'Please make a valid move'
 			move(player)
