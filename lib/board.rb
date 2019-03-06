@@ -40,10 +40,6 @@ class Board
 		false
 	end
 
-	def wanna_quit?(input)
-		return true if input.upcase == 'Q'
-	end
-
 	def print_board
 		counter = 0
 		print "  "
