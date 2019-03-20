@@ -36,8 +36,7 @@ class Board
 	end
 
 	def empty_space?(i)
-		return true if @matrix[i].nil?
-		false
+		@matrix[i].nil?
 	end
 
     def full?
