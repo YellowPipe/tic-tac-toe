@@ -8,11 +8,22 @@ class Board
   
   	def init_combin(dim)
   		arr = []
-        arr  += Array.new(dim ){|l| Array.new(dim){|i| dim * l + i }}  
-        arr  += Array.new(dim){|l| Array.new(dim){|i|  l + (i*dim)}}
-        arr  += Array.new(1){|l| Array.new(dim){|i|  i+ (i*dim)}}
-        arr  += Array.new(1){|l| Array.new(dim){|i|  i*(dim-1) + (dim-1)}}
+        arr  += Array.new(dim) { |element1| Array.new(dim){|element2| dim * element1 + element2 }}  
+        arr  += Array.new(dim) { |element1| Array.new(dim){|element2|  element1 + (element2*dim)}}
+        arr  += Array.new(1) { |element1| Array.new(dim){|element2|  element2+ (element2*dim)}}
+        arr  += Array.new(1) { |element1| Array.new(dim){|element2|  element2*(dim-1) + (dim-1)}}
         return arr                      
+    end
+
+    def move_index(player_input)
+    	@dim*(player_input[0].to_i)+ALPHABET.index(player_input[1].upcase)
+    end
+
+    def valid_move?(player_input)
+    	if valid_input?(player_input)
+    		return empty_space?(move_index(player_input))
+    	end
+    	false
     end
 
     def valid_input?(arr)
@@ -25,7 +36,7 @@ class Board
 	end
 
 	def empty_space?(i)
-		return true if @matrix[i] == nil
+		return true if @matrix[i].nil?
 		false
 	end
 
@@ -58,6 +69,6 @@ class Board
 	end
 
 	def clear
-		@matrix = Array.new(dim**2)
+		@matrix = Array.new(@dim**2)
 	end
 end
