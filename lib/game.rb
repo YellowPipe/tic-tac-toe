@@ -130,24 +130,56 @@ class Game
 		end
 	end
 
+	def want_to_quit?(arr)
+		return true if arr.length == 1 && arr[0].upcase == 'Q'
+	end
+
 	def win(player)
 		puts "#{player.name} won"
 		player.score+=1
 	end
 
+	def get_player_input
+		gets.gsub(/\s+/, "").split('')
+	end
+
 	def move(player)
 		symbol = player.symbol
-		puts "#{player.name} move (print a number from 0 to #{board.dim-1} and a letter from A to #{ALPHABET[board.dim-1]}) or 'Q' to quit\n"
-		player_input = gets.gsub(/\s+/, "").split('')
-		if board.valid_move?(player_input)
-			board.change_matrix(player.symbol, board.move_index(player_input))
-		elsif player_input.length == 1 && player_input[0].upcase == 'Q'
+		puts "#{player.name} move (print a number from 0 to #{@board.dim-1} and a letter from A to #{ALPHABET[@board.dim-1]}) or 'Q' to quit\n"
+		player_input = get_player_input
+		if valid_move?(player_input)
+			@board.change_matrix(player.symbol, move_index(player_input))
+		elsif want_to_quit?(player_input)
 			@wanna_quit = true
 		else
 			puts 'Please make a valid move'
 			move(player)
 		end
 	end	
+
+	def move_index(player_input)
+    	@board.dim*(player_input[0].to_i)+ALPHABET.index(player_input[1].upcase)
+    end
+
+	def valid_move?(player_input)
+    	if valid_input?(player_input)
+    		return empty_space?(move_index(player_input))
+    	end
+    	false
+    end
+
+    def valid_input?(arr)
+		if arr.length == 2 && 
+		(ALPHABET[0...@board.dim].any? {|val| val == arr[1].upcase}) &&
+		((0...@board.dim).to_a.any? {|element| element == arr[0].to_i})
+			return true
+		end
+		false
+	end
+
+	def empty_space?(i)
+		@board.matrix[i].nil?
+	end
 
 	def play
 		current_player = @player1
