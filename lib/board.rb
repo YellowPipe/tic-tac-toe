@@ -19,26 +19,6 @@ class Board
     	@dim*(player_input[0].to_i)+ALPHABET.index(player_input[1].upcase)
     end
 
-    def valid_move?(player_input)
-    	if valid_input?(player_input)
-    		return empty_space?(move_index(player_input))
-    	end
-    	false
-    end
-
-    def valid_input?(arr)
-		if arr.length == 2 && 
-		(ALPHABET[0...@dim].any? {|val| val == arr[1].upcase}) &&
-		((0...@dim).to_a.any? {|element| element == arr[0].to_i})
-			return true
-		end
-		false
-	end
-
-	def empty_space?(i)
-		@matrix[i].nil?
-	end
-
     def full?
 		@matrix.none? {|val| val == nil} 
 	end
@@ -51,15 +31,13 @@ class Board
 	end
 
 	def print_board
-		counter = 0
 		print "  "
 		@dim.times {|i| print " #{ALPHABET[i]} " }
 		print "\n"
-		@matrix.each_slice(@dim) do |val|
-			print "#{counter}|"
+		@matrix.each_slice(@dim).with_index do |val, i|
+			print "#{i}|"
 			val.each {|element| print element == nil ? " - " : " #{element} "} 
 			print "|\n"
-			counter+=1
 		end
 	end
 
