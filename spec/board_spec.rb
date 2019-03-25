@@ -31,10 +31,32 @@ RSpec.describe Board do
 
   describe "player_won" do
   	it "return true if the player puts his symbol in all the cells of one of win combinaisons" do
-  		board = Board.new(3)
+      board = Board.new(3)
   		board.matrix = ["x","x","x","o","o","nil","nil","nil","nil"]
   		expect(board.player_won?("x")).to eql(true)
   	end	
   end
 
+  describe "change_matrix" do 
+    
+    it "changes the matrix" do
+    board = Board.new(3)
+    board.change_matrix('x', 3) 
+      expect(board.matrix[3]).to eql('x')
+    end
+    it 'does not change other elements' do
+      board = Board.new(3)
+      board.change_matrix('x', 3)
+      expect(board.matrix[0]).to eql(nil)
+    end
+  end
+
+  describe "clear" do 
+    it "clears the matrix" do
+      board = Board.new(3)
+      board.change_matrix('x', 3) 
+      board.clear 
+      expect(board.matrix).to all(be_nil)
+    end
+  end
 end
