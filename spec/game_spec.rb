@@ -29,4 +29,14 @@ game = Game.new
   	end
   end
 
+
+  describe "want_to_quit?" do
+    it "should return true if length of the array is one and his value is q" do
+      expect(game.want_to_quit?(['q'])).to be true
+    end  
+    it "should return false if length of the array is great than one and his value is not q" do
+      expect(game.want_to_quit?([3,'B'])).to be false
+    end  
+  end  
+
 end  
