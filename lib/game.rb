@@ -12,16 +12,15 @@ class Game
 		@wanna_quit = false
 	end
 
-	def get_symbol
-		player_symbol = gets.chomp
+	def valid_symbol?(player_symbol)
 		if player_symbol.length != 1
 			puts "Your symbol should be a single character!"
-			get_symbol
-		elsif @player1 && @player1.symbol == player_symbol
+			return false
+		elsif player1 && @player1.symbol == player_symbol
 			puts "This symbol is already taken!"
-			get_symbol
+			return false
 		else
-			return player_symbol
+			true
 		end
 	end
 
@@ -29,8 +28,11 @@ class Game
 		puts "Your name:"
 		p_name = gets.chomp
 		puts "Your symbol, #{p_name}:"
-		p_symbol = get_symbol
-		return player = Player.new(p_name, p_symbol)
+		p_symbol = gets.chomp
+		until valid_symbol?(p_symbol)
+			p_symbol = gets.chomp
+		end
+		player = Player.new(p_name, p_symbol)
 	end
 
 	def add_players
@@ -75,15 +77,14 @@ class Game
 
 	def call_menu
 		system "clear"
-		#print "N: start new game\nC: Change players\nB: Change board size\nS: Score\nQ: Quit\n"
 		print_menu
 		puts "Your choice:"
 	    choice = gets.chomp.upcase
 	    case choice
 		when "G"
 			puts "Starting the game"
-			add_players if @player1 == nil && @player2 == nil
-			add_board if @board == nil
+			add_players if @player1.nil? || @player2.nil?
+			add_board if @board.nil?
 			@wanna_quit = false
 			play
 		when "C"
@@ -129,24 +130,26 @@ class Game
 		end
 	end
 
+	def want_to_quit?(arr)
+		return true if arr.length == 1 && arr[0].upcase == 'Q'
+	end
+
 	def win(player)
 		puts "#{player.name} won"
 		player.score+=1
 	end
 
+	def get_player_input
+		gets.gsub(/\s+/, "").split('')
+	end
+
 	def move(player)
 		symbol = player.symbol
-		puts "#{player.name} move (print a number from 0 to #{board.dim-1} and a letter from A to #{ALPHABET[board.dim-1]}) or 'Q' to quit\n"
-		player_input = gets.gsub(/\s+/, "").split('')
-		if board.valid_input?(player_input)
-			move_index = board.dim*(player_input[0].to_i)+ALPHABET.index(player_input[1].upcase)
-			if board.empty_space?(move_index)
-				board.change_matrix(player.symbol, move_index)
-			else
-				puts 'Invalid move'
-				move(player)
-			end
-		elsif player_input.length == 1 && player_input[0].upcase == 'Q'
+		puts "#{player.name} move (print a number from 0 to #{@board.dim-1} and a letter from A to #{ALPHABET[@board.dim-1]}) or 'Q' to quit\n"
+		player_input = get_player_input
+		if valid_move?(player_input)
+			@board.change_matrix(player.symbol, move_index(player_input))
+		elsif want_to_quit?(player_input)
 			@wanna_quit = true
 		else
 			puts 'Please make a valid move'
@@ -154,9 +157,33 @@ class Game
 		end
 	end	
 
+	def move_index(player_input)
+    	@board.dim*(player_input[0].to_i)+ALPHABET.index(player_input[1].upcase)
+    end
+
+	def valid_move?(player_input)
+    	if valid_input?(player_input)
+    		return empty_space?(move_index(player_input))
+    	end
+    	false
+    end
+
+    def valid_input?(arr)
+		if arr.length == 2 && 
+		(ALPHABET[0...@board.dim].any? {|val| val == arr[1].upcase}) &&
+		((0...@board.dim).to_a.any? {|element| element == arr[0].to_i})
+			return true
+		end
+		false
+	end
+
+	def empty_space?(i)
+		@board.matrix[i].nil?
+	end
+
 	def play
 		current_player = @player1
-		until @board.player_won?(@player1.symbol) || @board.player_won?(@player2.symbol) || @board.full? || @wanna_quit
+		until @board.player_won?(current_player.symbol) || @board.full? || @wanna_quit
 			system "clear"
 			board.print_board
 			increment_turn

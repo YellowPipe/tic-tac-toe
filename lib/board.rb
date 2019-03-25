@@ -8,26 +8,16 @@ class Board
   
   	def init_combin(dim)
   		arr = []
-        arr  += Array.new(dim ){|l| Array.new(dim){|i| dim * l + i }}  
-        arr  += Array.new(dim){|l| Array.new(dim){|i|  l + (i*dim)}}
-        arr  += Array.new(1){|l| Array.new(dim){|i|  i+ (i*dim)}}
-        arr  += Array.new(1){|l| Array.new(dim){|i|  i*(dim-1) + (dim-1)}}
+        arr  += Array.new(dim) { |element1| Array.new(dim){|element2| dim * element1 + element2 }}  
+        arr  += Array.new(dim) { |element1| Array.new(dim){|element2|  element1 + (element2*dim)}}
+        arr  += Array.new(1) { |element1| Array.new(dim){|element2|  element2+ (element2*dim)}}
+        arr  += Array.new(1) { |element1| Array.new(dim){|element2|  element2*(dim-1) + (dim-1)}}
         return arr                      
     end
 
-    def valid_input?(arr)
-		if arr.length == 2 && 
-		(ALPHABET[0...@dim].any? {|val| val == arr[1].upcase}) &&
-		((0...@dim).to_a.any? {|element| element == arr[0].to_i})
-			return true
-		end
-		false
-	end
-
-	def empty_space?(i)
-		return true if @matrix[i] == nil
-		false
-	end
+    def move_index(player_input)
+    	@dim*(player_input[0].to_i)+ALPHABET.index(player_input[1].upcase)
+    end
 
     def full?
 		@matrix.none? {|val| val == nil} 
@@ -41,15 +31,13 @@ class Board
 	end
 
 	def print_board
-		counter = 0
 		print "  "
 		@dim.times {|i| print " #{ALPHABET[i]} " }
 		print "\n"
-		@matrix.each_slice(@dim) do |val|
-			print "#{counter}|"
+		@matrix.each_slice(@dim).with_index do |val, i|
+			print "#{i}|"
 			val.each {|element| print element == nil ? " - " : " #{element} "} 
 			print "|\n"
-			counter+=1
 		end
 	end
 
@@ -58,6 +46,6 @@ class Board
 	end
 
 	def clear
-		@matrix = Array.new(dim**2)
+		@matrix = Array.new(@dim**2)
 	end
 end
