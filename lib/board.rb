@@ -6,7 +6,7 @@ class Board
 		@dim = dim
 	end
   
-  	def init_combin(dim)
+  	def init_combin(dim) 
   		arr = []
         arr  += Array.new(dim) { |element1| Array.new(dim){|element2| dim * element1 + element2 }}  
         arr  += Array.new(dim) { |element1| Array.new(dim){|element2|  element1 + (element2*dim)}}
