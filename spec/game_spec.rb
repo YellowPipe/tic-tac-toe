@@ -1,7 +1,9 @@
 require './lib/game'
 require './lib/player'
+require './lib/board'
 RSpec.describe Game do
 game = Game.new
+game.board = Board.new(3)
 
   describe "valid_symbol?" do
 	game.player1 = Player.new('name', 'X')
@@ -37,6 +39,42 @@ game = Game.new
     it "should return false if length of the array is great than one and his value is not q" do
       expect(game.want_to_quit?([3,'B'])).to be false
     end  
+  end 
+
+  describe "move_index" do
+    it "should return an integer" do
+      expect(game.move_index(['1','b'])).to be_a(Integer)
+    end  
+    it "should return th right array index" do
+      expect(game.move_index(['0','a'])).to eql(0)
+    end  
   end  
+
+  describe "valid_input?" do 
+    it "should return false if input is too short" do
+      expect(game.valid_input?(['1'])).to be false
+    end  
+
+    it "should return false if input is out of board range" do
+      expect(game.valid_input?(['99','A'])).to be false
+      expect(game.valid_input?(['1','Z'])).to be false
+    end  
+    it "should return true if all is good" do
+      expect(game.valid_input?(['1','B'])).to be true
+    end 
+  end
+
+  describe "empty_space?" do
+    it "should return false if matrix[i] is not nill" do
+      game.board.matrix[0] = 'X'
+      expect(game.empty_space?(0)).to be false
+    end 
+
+    it "should return true if matrix[i] is nill" do
+      game.board.matrix[0] = nil
+      expect(game.empty_space?(0)).to be true
+    end   
+  end  
+
 
 end  
