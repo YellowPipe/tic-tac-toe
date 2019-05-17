@@ -132,6 +132,7 @@ class Game
 
 	def want_to_quit?(arr)
 		return true if arr.length == 1 && arr[0].upcase == 'Q'
+		false
 	end
 
 	def win(player)
