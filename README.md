@@ -1,1 +1,1 @@
-# tic-tac-toe-temp
+# A tic tac toe game created as a part of microverse curriculum by Odin Project's instructions

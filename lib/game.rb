@@ -12,17 +12,6 @@ class Game
 		@wanna_quit = false
 	end
 
-	def valid_symbol?(player_symbol)
-		if player_symbol.length != 1
-			puts "Your symbol should be a single character!"
-			return false
-		elsif player1 && @player1.symbol == player_symbol
-			puts "This symbol is already taken!"
-			return false
-		else
-			true
-		end
-	end
 
 	def get_player
 		puts "Your name:"
@@ -46,11 +35,6 @@ class Game
 			puts "press anything to continue"
 			continue = gets.chomp
 			call_menu
-	end
-
-	def valid_board_size?(size)
-		return true if size <= 9 && size >= 2
-		false
 	end
 
 	def add_board
@@ -130,11 +114,6 @@ class Game
 		end
 	end
 
-	def want_to_quit?(arr)
-		return true if arr.length == 1 && arr[0].upcase == 'Q'
-		false
-	end
-
 	def win(player)
 		puts "#{player.name} won"
 		player.score+=1
@@ -158,30 +137,6 @@ class Game
 		end
 	end	
 
-	def move_index(player_input)
-    	@board.dim*(player_input[0].to_i)+ALPHABET.index(player_input[1].upcase)
-    end
-
-	def valid_move?(player_input)
-    	if valid_input?(player_input)
-    		return empty_space?(move_index(player_input))
-    	end
-    	false
-    end
-
-    def valid_input?(arr)
-		if arr.length == 2 && 
-		(ALPHABET[0...@board.dim].any? {|val| val == arr[1].upcase}) &&
-		((0...@board.dim).to_a.any? {|element| element == arr[0].to_i})
-			return true
-		end
-		false
-	end
-
-	def empty_space?(i)
-		@board.matrix[i].nil?
-	end
-
 	def play
 		current_player = @player1
 		until @board.player_won?(current_player.symbol) || @board.full? || @wanna_quit
@@ -199,6 +154,54 @@ class Game
 		board.print_board
 		score
 		play_again?
+	end
+
+	private 
+
+	def valid_symbol?(player_symbol)
+		if player_symbol.length != 1
+			puts "Your symbol should be a single character!"
+			return false
+		elsif player1 && @player1.symbol == player_symbol
+			puts "This symbol is already taken!"
+			return false
+		else
+			true
+		end
+	end
+
+	def valid_board_size?(size)
+		return true if size <= 9 && size >= 2
+		false
+	end
+
+	def want_to_quit?(arr)
+		return true if arr.length == 1 && arr[0].upcase == 'Q'
+		false
+	end
+
+	def move_index(player_input)
+    	@board.dim*(player_input[0].to_i)+ALPHABET.index(player_input[1].upcase)
+    end
+
+    def valid_move?(player_input)
+    	if valid_input?(player_input)
+    		return empty_space?(move_index(player_input))
+    	end
+    	false
+    end
+
+    def valid_input?(arr)
+		if arr.length == 2 && 
+		(ALPHABET[0...@board.dim].any? {|val| val == arr[1].upcase}) &&
+		((0...@board.dim).to_a.any? {|element| element == arr[0].to_i})
+			return true
+		end
+		false
+	end
+
+	def empty_space?(i)
+		@board.matrix[i].nil?
 	end
 
 end
